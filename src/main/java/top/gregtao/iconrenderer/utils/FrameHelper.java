@@ -6,14 +6,15 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
@@ -44,7 +45,7 @@ public class FrameHelper {
 
         RenderSystem.backupProjectionMatrix();
         Matrix4f p = new Matrix4f().setOrtho(0, 16, 16, 0, -150, 150);
-        RenderSystem.setProjectionMatrix(p);
+        RenderSystem.setProjectionMatrix(p, VertexSorting.ORTHOGRAPHIC_Z);
 
         this.framebuffer.bindWrite(true);
         this.framebuffer.bindRead();
@@ -88,7 +89,7 @@ public class FrameHelper {
     }
 
     protected void renderGuiItemModel(ItemStack stack, int x, int y, BakedModel model, ItemRenderer renderer) {
-        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -96,7 +97,7 @@ public class FrameHelper {
         matrixStack.pushPose();
         matrixStack.translate(x, y, 100.0F);
         matrixStack.translate(8.0D, 8.0D, 0.0D);
-        //matrixStack.scale(1.0F, 1.0F, 1.0F);
+        matrixStack.scale(1.0F, -1.0F, 1.0F);
         matrixStack.scale(16.0F, 16.0F, 16.0F);
         RenderSystem.applyModelViewMatrix();
         PoseStack matrixStack2 = new PoseStack();

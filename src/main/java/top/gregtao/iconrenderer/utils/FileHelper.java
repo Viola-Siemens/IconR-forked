@@ -1,7 +1,9 @@
 package top.gregtao.iconrenderer.utils;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -25,6 +27,7 @@ public class FileHelper {
     public String modId;
     public List<JsonMeta> jsonMetas = new ArrayList<>();
     public List<EntityJsonMeta> entityJsonMetas = new ArrayList<>();
+    public static final List<CreativeModeTab> blackList = new ArrayList<>();
 
     public FileHelper(String modId) throws IOException {
         this.modId = modId;
@@ -52,8 +55,9 @@ public class FileHelper {
         if (client.level == null) return;
         final RegistryAccess manager = client.level.registryAccess();
         CreativeModeTabs.tryRebuildTabContents(handler.enabledFeatures(), true, manager);
+        final var black = getBlackList();
         for (CreativeModeTab group : CreativeModeTabs.allTabs()) {
-            if (group != CreativeModeTabs.HOTBAR && group != CreativeModeTabs.INVENTORY && group != CreativeModeTabs.SEARCH) {
+            if (!black.contains(group)) {
                 Collection<ItemStack> itemStacks = group.getDisplayItems();
                 for (ItemStack itemStack : itemStacks) {
                     if (ForgeRegistries.ITEMS.getKey(itemStack.getItem()).getNamespace().equals(this.modId)) {
@@ -116,4 +120,10 @@ public class FileHelper {
         }
     }
 
+    public static List<CreativeModeTab> getBlackList() {
+        if (blackList.isEmpty())
+            blackList.addAll(ImmutableList.of(CreativeModeTabs.HOTBAR, CreativeModeTabs.INVENTORY, CreativeModeTabs.SEARCH).stream()
+                    .map(BuiltInRegistries.CREATIVE_MODE_TAB::get).toList());
+        return blackList;
+    }
 }
