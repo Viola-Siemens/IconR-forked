@@ -95,18 +95,30 @@ public class FileHelper {
         }
     }
 
-    public void writeToFile() throws IOException {
-        FileWriter writer = new FileWriter(this.file, StandardCharsets.UTF_8);
-        for (JsonMeta meta : this.jsonMetas) {
-            writer.write(meta.toJsonObject().toString() + "\n");
+    public void writeToFile() {
+        try (final FileWriter m_writer = new FileWriter(this.file, StandardCharsets.UTF_8)) {
+            for (JsonMeta meta : this.jsonMetas) {
+                try {
+                    m_writer.write(meta.toJsonObject().toString() + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        writer.close();
 
-        writer = new FileWriter(this.entityFile, StandardCharsets.UTF_8);
-        for (EntityJsonMeta meta : this.entityJsonMetas) {
-            writer.write(meta.toJsonObject().toString() + "\n");
+        try (final FileWriter e_writer = new FileWriter(this.entityFile, StandardCharsets.UTF_8);) {
+            for (EntityJsonMeta meta : this.entityJsonMetas) {
+                try {
+                    e_writer.write(meta.toJsonObject().toString() + "\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        writer.close();
     }
 
     private static void resetLanguage(String lang) {
