@@ -79,8 +79,12 @@ public class FrameHelper {
             spawnEntity.setPosRaw(client.player.getX(), client.player.getY(), client.player.getZ());
         }
 
-        client.getEntityRenderDispatcher().render(spawnEntity, 0, 0, 0, 0,
-                client.getFrameTime(), this.modelStack, immediate, 15728880);
+        try {
+            client.getEntityRenderDispatcher().render(spawnEntity, 0, 0, 0, 0,
+                    client.getFrameTime(), this.modelStack, immediate, 15728880);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
