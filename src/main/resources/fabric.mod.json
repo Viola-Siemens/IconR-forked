@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "iconr",
+  "version": "${version}",
+  "name": "IconRenderer",
+  "description": "",
+  "authors": [
+    "GregTao"
+  ],
+  "contact": {},
+  "license": "GPL-3.0",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "top.gregtao.iconr.IconRenderer"
+    ]
+  },
+  "depends": {
+    "fabricloader": "*",
+    "fabric": "*",
+    "minecraft": "1.20.x"
+  }
+}
