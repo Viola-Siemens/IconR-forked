@@ -8,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
+import top.gregtao.iconrenderer.IconRenderer;
 import top.gregtao.iconrenderer.commands.arg.ModIdArgumentType;
 import top.gregtao.iconrenderer.utils.FileHelper;
 
@@ -28,7 +29,7 @@ public class ExportIconsCommand {
         try {
             new FileHelper(modId);
         } catch (IOException e) {
-            e.printStackTrace();
+            IconRenderer.LOGGER.error("IOException while exporting icons", e);
         }
         return 1;
     }

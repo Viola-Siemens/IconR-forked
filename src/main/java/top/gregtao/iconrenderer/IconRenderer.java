@@ -1,6 +1,7 @@
 package top.gregtao.iconrenderer;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.logging.LogUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
@@ -8,13 +9,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import top.gregtao.iconrenderer.commands.ExportIconsCommand;
 
 @Mod(IconRenderer.MODID)
 public class IconRenderer {
     public static final String MODID = "iconr";
-    public static final Logger logger = LoggerFactory.getLogger("Icon Renderer");
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public IconRenderer() {
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);

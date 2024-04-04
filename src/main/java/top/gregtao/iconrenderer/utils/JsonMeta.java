@@ -10,6 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class JsonMeta {
     public ItemStack itemStack;
@@ -29,7 +30,7 @@ public class JsonMeta {
     public JsonMeta(ItemStack itemStack, CreativeModeTab group) {
         this.itemStack = itemStack;
         this.itemGroup = group;
-        this.regName = ForgeRegistries.ITEMS.getKey(itemStack.getItem()).toString();
+        this.regName = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(itemStack.getItem())).toString();
         this.type = itemStack.getItem() instanceof BlockItem ? RenderType.Block : RenderType.Item;
         this.maxDurability = itemStack.getMaxDamage();
         this.maxStackSize = itemStack.getMaxStackSize();
@@ -39,7 +40,7 @@ public class JsonMeta {
         for (int i = 0; i < tags.size() - 1; ++i) {
             stringBuilder.append(tags.get(i).location()).append(", ");
         }
-        if (tags.size() > 0) stringBuilder.append(tags.get(tags.size() - 1).location());
+        if (!tags.isEmpty()) stringBuilder.append(tags.get(tags.size() - 1).location());
         stringBuilder.append("]");
         this.tags = stringBuilder.toString();
         this.imageHelper = new ImageHelper(this);

@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class FileHelper {
     public static File filePath = new File("./IconRendererOutput/");
@@ -34,17 +35,17 @@ public class FileHelper {
         this.file = new File(filePath.toString() + "/" + modId + ".json");
         this.entityFile = new File(filePath.toString() + "/" + modId + "_entity.json");
         if (!filePath.exists() && !filePath.mkdir()) {
-            IconRenderer.logger.error("Could not mkdir " + filePath);
+            IconRenderer.LOGGER.error("Could not mkdir " + filePath);
         } else if (!this.file.exists() && !this.file.createNewFile()) {
-            IconRenderer.logger.error("Could not create new file " + this.file);
+            IconRenderer.LOGGER.error("Could not create new file " + this.file);
         } else if (!this.entityFile.exists() && !this.entityFile.createNewFile()) {
-            IconRenderer.logger.error("Could not create new file " + this.entityFile);
+            IconRenderer.LOGGER.error("Could not create new file " + this.entityFile);
         } else {
-            IconRenderer.logger.info("Exporting data of " + this.modId);
+            IconRenderer.LOGGER.info("Exporting data of " + this.modId);
             this.fromModId();
             this.readNamesByLang();
             this.writeToFile();
-            IconRenderer.logger.info("Exported data of " + this.modId);
+            IconRenderer.LOGGER.info("Exported data of " + this.modId);
         }
     }
 
@@ -60,7 +61,7 @@ public class FileHelper {
             if (!black.contains(group)) {
                 Collection<ItemStack> itemStacks = group.getDisplayItems();
                 for (ItemStack itemStack : itemStacks) {
-                    if (ForgeRegistries.ITEMS.getKey(itemStack.getItem()).getNamespace().equals(this.modId)) {
+                    if (Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(itemStack.getItem())).getNamespace().equals(this.modId)) {
                         this.jsonMetas.add(new JsonMeta(itemStack, group));
                     }
                 }
@@ -70,6 +71,7 @@ public class FileHelper {
     }
 
     public void putEntity(EntityType<? extends Entity> type) {
+        if (Minecraft.getInstance().level == null) return;
         if (!type.getDefaultLootTable().getNamespace().equals(this.modId)) return;
         Entity entity = type.create(Minecraft.getInstance().level);
         if (!(entity instanceof Mob)) return;
@@ -101,11 +103,11 @@ public class FileHelper {
                 try {
                     m_writer.write(meta.toJsonObject().toString() + "\n");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    IconRenderer.LOGGER.warn(String.format("Failed to write %s to file", meta.regName), e);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            IconRenderer.LOGGER.warn("IOException while writing metas to files", e);
         }
 
         try (final FileWriter e_writer = new FileWriter(this.entityFile, StandardCharsets.UTF_8);) {
@@ -113,11 +115,11 @@ public class FileHelper {
                 try {
                     e_writer.write(meta.toJsonObject().toString() + "\n");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    IconRenderer.LOGGER.warn(String.format("Failed to write %s to file", meta.regName), e);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            IconRenderer.LOGGER.warn("IOException while writing metas to files", e);
         }
     }
 
