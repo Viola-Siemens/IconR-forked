@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.math.Axis;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -18,9 +19,11 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 
 public class FrameHelper {
     public RenderTarget framebuffer;
+    private Matrix4fStack matrixStack;
     private PoseStack modelStack;
 
     public FrameHelper(int size, ItemStack itemStack) {
@@ -39,9 +42,10 @@ public class FrameHelper {
     }
 
     public void startRecord() {
-        this.modelStack = RenderSystem.getModelViewStack();
-        this.modelStack.pushPose();
-        this.modelStack.setIdentity();
+        this.matrixStack = RenderSystem.getModelViewStack();
+        this.matrixStack.pushMatrix();
+        RenderSystem.applyModelViewMatrix();
+        this.modelStack = new PoseStack();
 
         RenderSystem.backupProjectionMatrix();
         Matrix4f p = new Matrix4f().setOrtho(0, 16, 16, 0, -150, 150);
@@ -53,7 +57,7 @@ public class FrameHelper {
 
     public void endRecord() {
         RenderSystem.restoreProjectionMatrix();
-        this.modelStack.popPose();
+        this.matrixStack.popMatrix();
 
         this.framebuffer.unbindWrite();
         this.framebuffer.unbindRead();
@@ -63,9 +67,6 @@ public class FrameHelper {
         Minecraft client = Minecraft.getInstance();
         MultiBufferSource.BufferSource immediate = client.renderBuffers().bufferSource();
 
-        this.modelStack = RenderSystem.getModelViewStack();
-        this.modelStack.pushPose();
-        this.modelStack.setIdentity();
         this.modelStack.mulPose(Axis.XP.rotationDegrees(112.5f));
         this.modelStack.scale(2.5f, -2.5f, -2.5f);
         this.modelStack.translate(0.75f, 1f, 1f);
@@ -81,11 +82,10 @@ public class FrameHelper {
 
         try {
             client.getEntityRenderDispatcher().render(spawnEntity, 0, 0, 0, 0,
-                    client.getFrameTime(), this.modelStack, immediate, 15728880);
+                    DeltaTracker.ZERO.getGameTimeDeltaPartialTick(false), this.modelStack, immediate, 15728880);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void renderGuiItemIcon(ItemStack stack, int x, int y, ItemRenderer renderer) {
@@ -97,28 +97,20 @@ public class FrameHelper {
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        PoseStack matrixStack = RenderSystem.getModelViewStack();
-        matrixStack.pushPose();
-        matrixStack.translate(x, y, 100.0F);
-        matrixStack.translate(8.0D, 8.0D, 0.0D);
-        matrixStack.scale(1.0F, -1.0F, 1.0F);
-        matrixStack.scale(16.0F, 16.0F, 16.0F);
-        RenderSystem.applyModelViewMatrix();
-        PoseStack matrixStack2 = new PoseStack();
+        this.modelStack.translate(x + 8, y + 8, 100.0F);
+        this.modelStack.scale(16.0F, -16.0F, 16.0F);
         MultiBufferSource.BufferSource immediate = Minecraft.getInstance().renderBuffers().bufferSource();
         boolean bl = !model.usesBlockLight();
         if (bl) {
             Lighting.setupForFlatItems();
         }
 
-        renderer.render(stack, ItemDisplayContext.GUI, false, matrixStack2, immediate, 15728880, OverlayTexture.NO_OVERLAY, model);
+        renderer.render(stack, ItemDisplayContext.GUI, false, this.modelStack, immediate, 0xf000f0, OverlayTexture.NO_OVERLAY, model);
+        RenderSystem.disableDepthTest();
         immediate.endBatch();
         RenderSystem.enableDepthTest();
         if (bl) {
             Lighting.setupFor3DItems();
         }
-
-        matrixStack.popPose();
-        RenderSystem.applyModelViewMatrix();
     }
 }

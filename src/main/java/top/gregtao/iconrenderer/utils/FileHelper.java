@@ -71,7 +71,7 @@ public class FileHelper {
 
     public void putEntity(EntityType<? extends Entity> type) {
         if (Minecraft.getInstance().level == null) return;
-        if (!type.getDefaultLootTable().getNamespace().equals(this.modId)) return;
+        if (!type.getDefaultLootTable().location().getNamespace().equals(this.modId)) return;
         Entity entity = type.create(Minecraft.getInstance().level);
         if (!(entity instanceof Mob)) return;
         this.entityJsonMetas.add(new EntityJsonMeta(entity));
@@ -84,7 +84,7 @@ public class FileHelper {
         }
         for (EntityJsonMeta meta : this.entityJsonMetas) {
             meta.enName = meta.entity.getDisplayName().getString();
-            meta.mod = meta.entity.getType().getDefaultLootTable().getNamespace();
+            meta.mod = meta.entity.getType().getDefaultLootTable().location().getNamespace();
         }
         resetLanguage("zh_cn");
         for (JsonMeta meta : this.jsonMetas) {
@@ -109,7 +109,7 @@ public class FileHelper {
             IconRenderer.LOGGER.warn("IOException while writing metas to files", e);
         }
 
-        try (final FileWriter e_writer = new FileWriter(this.entityFile, StandardCharsets.UTF_8);) {
+        try (final FileWriter e_writer = new FileWriter(this.entityFile, StandardCharsets.UTF_8)) {
             for (EntityJsonMeta meta : this.entityJsonMetas) {
                 try {
                     e_writer.write(meta.toJsonObject().toString() + "\n");
